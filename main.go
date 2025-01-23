@@ -3,7 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	v1 "github.com/kyzrfranz/buntesdach/api/v1"
 	"github.com/kyzrfranz/interventure-cli/pkg/client"
+	"github.com/kyzrfranz/interventure-cli/pkg/xls"
 	"log"
 	"os"
 )
@@ -18,10 +20,25 @@ func main() {
 
 	cli, _ := client.NewBuntesdachClient(apiUrl)
 
-	//list := cli.Committees().List()
-	detail := cli.Committees().Detail("a11")
-	//fmt.Printf("list: %v\n", list)
-	fmt.Printf("detail: %v\n", detail)
+	list := cli.Politicians().List()
+
+	bios := make([]v1.Politician, 0)
+	counter := 0
+	for _, politicianListEntry := range list {
+		if politicianListEntry.Id.Status == "Aktiv" {
+			bio := cli.Politicians().Bio(politicianListEntry.Id.Value)
+			fmt.Printf("#%d %s, %s, %v\n", counter, politicianListEntry.Name, politicianListEntry.Id.Value)
+			bios = append(bios, *bio)
+			counter++
+			//if counter > 500 {
+			//	break
+			//}
+		}
+	}
+
+	xlsGenerator := xls.NewGenerator()
+	err := xlsGenerator.Generate("./adds.xlsx", bios)
+	noErrorOrExit(err)
 
 }
 
