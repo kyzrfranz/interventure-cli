@@ -5,11 +5,23 @@ import (
 	"github.com/kyzrfranz/interventure-cli/pkg/client"
 	"log"
 	"os"
+	"strconv"
 )
 
 func EnvOrString(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
 		return value
+	}
+	return fallback
+}
+
+func EnvOrInt(key string, fallback int) int {
+	if value, ok := os.LookupEnv(key); ok {
+		intVal, err := strconv.Atoi(value)
+		if err != nil {
+			return fallback
+		}
+		return intVal
 	}
 	return fallback
 }
@@ -21,7 +33,7 @@ func NoErrorOrExit(err error) {
 	log.Fatalf("well shit!: %v", err)
 }
 
-func FetchPoliticians(url string) []v1.Politician {
+func FetchPoliticians(url string, max int) []v1.Politician {
 	cli, _ := client.NewBuntesdachClient(url)
 
 	list := cli.Politicians().List()
@@ -34,7 +46,7 @@ func FetchPoliticians(url string) []v1.Politician {
 			bios = append(bios, *bio)
 			counter++
 
-			if counter > 3 {
+			if max > 0 && counter > max {
 				break
 			}
 		}
