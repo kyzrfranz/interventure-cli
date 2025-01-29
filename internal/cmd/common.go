@@ -9,7 +9,7 @@ import (
 )
 
 func EnvOrString(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
+	if value, exists := os.LookupEnv(key); exists {
 		return value
 	}
 	return fallback
