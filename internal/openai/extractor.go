@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/invopop/jsonschema"
-	"github.com/kyzrfranz/interventure-cli/internal/scraper"
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
 )
@@ -19,8 +18,15 @@ type Extract struct {
 	Contact []ContactDetails
 }
 
+type ContactType string
+
+const EmailType ContactType = "email"
+const AddressType ContactType = "address"
+const PhoneType ContactType = "phone"
+const FaxType ContactType = "fax"
+
 type ContactDetails struct {
-	Type  string
+	Type  ContactType
 	Name  string
 	Value string
 }
@@ -40,36 +46,16 @@ func NewExtractor(token string) *Extractor {
 	}
 }
 
-var extractSchema = GenerateSchema[Extract]()
-
 func (e Extractor) Extract(url string) (Extract, error) {
 
-	prompt := "ich gebe dir den content einer webseite eines MdB. Du sollst einen kurzen zusammenfassungstext über die Person insbes. bezüglich arbeits und sozialpolitischen themen vornehmen, sowie folgende kontakldaten sofern vorhanden: email, anschrift bundestag, anschrift wahlkreis, telefonnummer, faxnummer, homepage"
-
-	data, err := scraper.Scrape(url)
-
-	if err != nil {
-		return Extract{}, err
-	}
-
-	schemaParam := openai.ResponseFormatJSONSchemaJSONSchemaParam{
-		Name:        openai.F("extract"),
-		Description: openai.F("Extract data from a website"),
-		Schema:      openai.F(extractSchema),
-		Strict:      openai.Bool(true),
-	}
+	prompt := "ich gebe dir eine bio zu einem mdb, inklusive liste über tätigkeit in arbeitskreisen des bundestags, sowie bezüge.\n\nverfasse basierend darauf einen kurzen, prägnanten persönlichen text der den kandiadten auf seine standpunkte zum thema arbeits & sozialploitik anspricht, mehr für selbständige in DE zu unternehmen:"
 
 	client := openai.NewClient(
 		option.WithAPIKey(e.apiToken), // defaults to os.LookupEnv("OPENAI_API_KEY")
 	)
 	chatCompletion, err := client.Chat.Completions.New(context.Background(), openai.ChatCompletionNewParams{
-		ResponseFormat: openai.F[openai.ChatCompletionNewParamsResponseFormatUnion](
-			openai.ResponseFormatJSONSchemaParam{
-				Type:       openai.F(openai.ResponseFormatJSONSchemaTypeJSONSchema),
-				JSONSchema: openai.F(schemaParam),
-			}),
 		Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
-			openai.UserMessage(fmt.Sprintf("%s. Die website daten sind: %s", prompt, data)),
+			openai.UserMessage(fmt.Sprintf("%s. Die personendaten sind: %s", prompt, "")),
 		}),
 		Model: openai.F(openai.ChatModelGPT4o2024_08_06),
 	})

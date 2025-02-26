@@ -1,30 +1,34 @@
 # interventure-cli
+A bunch of generator to be used with www.github.com/kyzrfranz/buntesdach.
 
+This has been used to build the campaign www.stoppt-scheinselbstaendigkeit.de
 
-## Commands
+## Use
+If you use the binaries, make sure to point to a running instance of the buntesdach API.
 
-### bio
-fetches the bios from the `buntesdach api` and stores it in a json for further processing by `transform`
+```bash
 
-```shell
-make build 
-./bin/bio
-```
-
-#### flags
-- `--apiUrl` : path to the input file (default: `http://localhost:8080`) you can point it to `https://buntesdach-api-983281881572.europe-west1.run.app`
-- `--out` : path to the output file (default: `.bio.json`)
-- `--max` : limit the number of bios fetched (default: `all`)
-
-
-### transform
-transforms the bios from the `buntesdach api` into an xslx addresslist
-
-```shell
+You can either run
+```bash
 make build
-./bin/transform 
+```
+and run the binaries directly. Or you can use the make targets.
+
+Generate a static json containing all MdB bios of the current legislative period.
+```bash
+make bio-all
 ```
 
-#### flags
-- `--in` : path to the input file (default: `.bio.json`)
-- `--out` : path to the output file (default: `.addresslist.xlsx`)
+Download all available images to be able to process them
+```bash
+make fetch-images
+```
+
+Resize, crop the downloaded images to be used on a website
+```bash
+make process-images
+```
+
+
+There are some other things in there that currently don't really work, like generating AI prompts or scraping personal websites.
+Maybe in the future...

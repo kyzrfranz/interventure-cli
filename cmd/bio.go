@@ -16,7 +16,7 @@ var (
 )
 
 func main() {
-	flag.StringVar(&url, "apiUrl", cmd.EnvOrString("API_URL", "http://localhost:8080"), "buntesdach API URL")
+	flag.StringVar(&url, "apiUrl", cmd.EnvOrString("API_URL", "https://buntesdach-api-983281881572.europe-west1.run.app"), "buntesdach API URL")
 	flag.StringVar(&outFile, "out", cmd.EnvOrString("OUTPUT_FILE", "bio.json"), "name the output json file")
 	flag.IntVar(&max, "max", cmd.EnvOrInt("MAX_NUMBER", -1), "max number of bios to fetch at once - will be alphabetically sorted")
 	flag.Parse()

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	v1 "github.com/kyzrfranz/buntesdach/api/v1"
 	"github.com/kyzrfranz/interventure-cli/pkg/client"
 	"log"
@@ -42,6 +43,7 @@ func FetchPoliticians(url string, max int) []v1.Politician {
 	counter := 0
 	for _, politicianListEntry := range list {
 		if politicianListEntry.Id.Status == "Aktiv" {
+			fmt.Printf("processing %s %s \n", politicianListEntry.Name, politicianListEntry.Id)
 			bio := cli.Politicians().Bio(politicianListEntry.Id.Value)
 			bios = append(bios, *bio)
 			counter++

@@ -24,3 +24,12 @@ func TestGetFromArchive(t *testing.T) {
 	println(archiveUrl)
 
 }
+
+func TestGetProtocol(t *testing.T) {
+
+	url := "https://www.bundestag.de/mediathek?videoid=7615711&url=L21lZGlhdGhla292ZXJsYXk=&mod=mediathek#url=L21lZGlhdGhla292ZXJsYXk/dmlkZW9pZD03NjE1NzExJnVybD1MMjFsWkdsaGRHaGxhMjkyWlhKc1lYaz0mbW9kPW1lZGlhdGhlaw==&mod=mediathek"
+	protocol, err := Scrape(url)
+	assert.NoError(t, err)
+	println(protocol)
+
+}

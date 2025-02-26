@@ -29,13 +29,48 @@ func Scrape(url string) (string, error) {
 	)
 
 	// Find and visit all links
+	c.OnHTML("html", func(e *colly.HTMLElement) {
+		text += e.DOM.Text()
+	})
+
+	c.OnRequest(func(r *colly.Request) {
+		fmt.Println("Visiting", r.URL)
+	})
+
+	err := c.Visit(url)
+
+	return text, err
+
+}
+
+func protocolCollector() *colly.Collector {
+	c := colly.NewCollector(
+		colly.MaxDepth(2),
+	)
+
+	// Find and visit all links
+	c.OnHTML(".bt-linkliste", func(e *colly.HTMLElement) {
+		fmt.Printf("Found link: %s\n", e.Attr("href"))
+		//e.Request.Visit(e.Attr("href")) //NOT TODAY
+	})
+
+	return c
+}
+
+func dingsCollector(text string) *colly.Collector {
+	c := colly.NewCollector(
+		colly.MaxDepth(2),
+	)
+
+	// Find and visit all links
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-		e.Request.Visit(e.Attr("href")) //NOT TODAY
+		//e.Request.Visit(e.Attr("href")) //NOT TODAY
 	})
 
 	c.OnHTML("body", func(e *colly.HTMLElement) {
 		e.DOM.Find("script, style").Remove()
-		text += e.DOM.Text()
+		html, _ := e.DOM.Html()
+		text += html
 	})
 
 	c.OnRequest(func(r *colly.Request) {
@@ -54,10 +89,7 @@ func Scrape(url string) (string, error) {
 		fmt.Println("Visiting", r.URL)
 	})
 
-	err := c.Visit(url)
-
-	return trimText(text), err
-
+	return c
 }
 
 func trimText(text string) string {
